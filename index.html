@@ -22,6 +22,8 @@
         // Global variables for music state
         let audioContext = null;
         let audioSource = null;
+        let typedKeys = '';
+        let easterEggActive = false;
 
         // Dark Mode Toggle Function
         function toggleDarkMode() {
@@ -31,6 +33,50 @@
             
             sunIcon.classList.toggle('hidden');
             moonIcon.classList.toggle('hidden');
+        }
+
+        // Easter Egg Function
+        function checkEasterEgg(key) {
+            // Accumulate last 3 typed keys
+            typedKeys = (typedKeys + key).slice(-3);
+
+            // Check for "ilu"
+            if (typedKeys.toLowerCase() === '143') {
+                activateEasterEgg();
+            }
+        }
+
+        // Activate Easter Egg
+        function activateEasterEgg() {
+            if (easterEggActive) return;
+            easterEggActive = true;
+
+            // Create Easter Egg Popup
+            const easterEggPopup = document.createElement('div');
+            easterEggPopup.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+                    <div class="bg-red-900 text-white p-10 rounded-3xl text-center shadow-2xl animate-pulse">
+                        <h2 class="text-4xl font-bold mb-4">Sajin ❤️ Ashley</h2>
+                        <p class="text-2xl">Forever and Always</p>
+                        <button onclick="closeEasterEgg()" class="mt-6 px-4 py-2 bg-red-700 rounded-full hover:bg-red-600">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(easterEggPopup);
+
+            // Change page to passionate theme
+            document.body.classList.add('easter-egg-theme');
+            document.documentElement.classList.add('dark');
+        }
+
+        // Close Easter Egg
+        function closeEasterEgg() {
+            const popup = document.body.querySelector('div[class*="fixed inset-0 z-50"]');
+            if (popup) {
+                popup.remove();
+            }
+            document.body.classList.remove('easter-egg-theme');
+            easterEggActive = false;
         }
 
         // Improved Music Control Function
@@ -104,6 +150,11 @@
         window.addEventListener('load', () => {
             document.addEventListener('click', handleFirstInteraction);
             document.addEventListener('touchstart', handleFirstInteraction);
+            
+            // Add keydown listener for Easter Egg
+            document.addEventListener('keydown', (e) => {
+                checkEasterEgg(e.key);
+            });
         });
     </script>
     <style>
@@ -131,6 +182,26 @@
                 rgba(0, 0, 139, 0.5) 100%);
         }
 
+        /* Easter Egg Theme */
+        .easter-egg-theme {
+            background: linear-gradient(135deg, 
+                rgba(139, 0, 0, 0.8) 0%, 
+                rgba(0, 0, 0, 0.9) 100%) !important;
+        }
+
+        .easter-egg-theme .container {
+            background-color: rgba(139, 0, 0, 0.6) !important;
+            color: white !important;
+        }
+
+        .easter-egg-theme h1 {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .easter-egg-theme p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -143,6 +214,16 @@
             h1 {
                 font-size: 2.5rem !important;
             }
+        }
+
+        /* Animations for Easter Egg */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            150% { transform: scale(1.05); }
+        }
+
+        .animate-pulse {
+            animation: pulse 100s infinite;
         }
     </style>
 </head>
