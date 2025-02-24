@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajin & Ashley's Marriage</title>
+    
+    <!-- Open Graph Meta Tags for Social Preview -->
+    <meta property="og:title" content="Sajin & Ashley's Marriage">
+    <meta property="og:description" content="Join us on 09/06/2025">
+    <meta property="og:image" content="https://raw.githubusercontent.com/ravanabackup/ashleysajin/refs/heads/main/WhatsApp%20Image%202025-01-25%20at%2013.55.27_c107579c.jpg">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind Dark Mode Configuration
+        tailwind.config = {
+            darkMode: 'class'
+        }
+
+        // Global variables for music state
+        let audioContext = null;
+        let audioSource = null;
+        let typedKeys = '';
+        let easterEggActive = false;
+
+        // Dark Mode Toggle Function
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+        }
+
+        // Easter Egg Function
+        function checkEasterEgg(key) {
+            // Accumulate last 3 typed keys
+            typedKeys = (typedKeys + key).slice(-3);
+
+            // Check for "ilu"
+            if (typedKeys.toLowerCase() === '143') {
+                activateEasterEgg();
+            }
+        }
+
+        // Activate Easter Egg
+        function activateEasterEgg() {
+            if (easterEggActive) return;
+            easterEggActive = true;
+
+            // Create Easter Egg Popup
+            const easterEggPopup = document.createElement('div');
+            easterEggPopup.innerHTML = `
+                <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+                    <div class="bg-red-900 text-white p-10 rounded-3xl text-center shadow-2xl animate-pulse">
+                        <h2 class="text-4xl font-bold mb-4">Sajin ❤️ Ashley</h2>
+                        <p class="text-2xl">Forever and Always</p>
+                        <button onclick="closeEasterEgg()" class="mt-6 px-4 py-2 bg-red-700 rounded-full hover:bg-red-600">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(easterEggPopup);
+
+            // Change page to passionate theme
+            document.body.classList.add('easter-egg-theme');
+            document.documentElement.classList.add('dark');
+        }
+
+        // Close Easter Egg
+        function closeEasterEgg() {
+            const popup = document.body.querySelector('div[class*="fixed inset-0 z-50"]');
+            if (popup) {
+                popup.remove();
+            }
+            document.body.classList.remove('easter-egg-theme');
+            easterEggActive = false;
+        }
+
+        // Improved Music Control Function
+        function initializeAudio() {
+            const audio = document.getElementById('background-music');
+            const musicIcon = document.getElementById('music-icon');
+            const muteIcon = document.getElementById('mute-icon');
+
+            // Create audio context for more reliable playback
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Create audio source if not exists
+            if (!audioSource) {
+                audioSource = audioContext.createMediaElementSource(audio);
+                audioSource.connect(audioContext.destination);
+            }
+
+            // Try to play audio with resume
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            // Play audio
+            const playPromise = audio.play();
+
+            // Handle play promise
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    musicIcon.classList.add('hidden');
+                    muteIcon.classList.remove('hidden');
+                }).catch(error => {
+                    console.error('Autoplay prevented:', error);
+                });
+            }
+        }
+
+        // Toggle Music Playback
+        function toggleMusic() {
+            const audio = document.getElementById('background-music');
+            const musicIcon = document.getElementById('music-icon');
+            const muteIcon = document.getElementById('mute-icon');
+
+            // Ensure audio context is created
+            if (!audioContext) {
+                initializeAudio();
+                return;
+            }
+
+            if (audio.paused) {
+                audio.play();
+                musicIcon.classList.add('hidden');
+                muteIcon.classList.remove('hidden');
+            } else {
+                audio.pause();
+                musicIcon.classList.remove('hidden');
+                muteIcon.classList.add('hidden');
+            }
+        }
+
+        // Initialize on user interaction
+        function handleFirstInteraction() {
+            initializeAudio();
+            // Remove the event listeners after first interaction
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        }
+
+        // Add event listeners when page loads
+        window.addEventListener('load', () => {
+            document.addEventListener('click', handleFirstInteraction);
+            document.addEventListener('touchstart', handleFirstInteraction);
+            
+            // Add keydown listener for Easter Egg
+            document.addEventListener('keydown', (e) => {
+                checkEasterEgg(e.key);
+            });
+        });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overscroll-behavior: none;
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, 
+                rgba(255, 192, 203, 0.5) 0%, 
+                rgba(173, 216, 230, 0.5) 100%);
+        }
+
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, 
+                rgba(75, 0, 130, 0.5) 0%, 
+                rgba(0, 0, 139, 0.5) 100%);
+        }
+
+        /* Easter Egg Theme */
+        .easter-egg-theme {
+            background: linear-gradient(135deg, 
+                rgba(139, 0, 0, 0.8) 0%, 
+                rgba(0, 0, 0, 0.9) 100%) !important;
+        }
+
+        .easter-egg-theme .container {
+            background-color: rgba(139, 0, 0, 0.6) !important;
+            color: white !important;
+        }
+
+        .easter-egg-theme h1 {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .easter-egg-theme p {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 2.5rem !important;
+            }
+        }
+
+        /* Animations for Easter Egg */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            150% { transform: scale(1.05); }
+        }
+
+        .animate-pulse {
+            animation: pulse 100s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center gradient-bg overflow-hidden">
+    
+    <div class="container mx-auto max-w-xl p-8 text-center bg-white/70 dark:bg-gray-900/80 rounded-3xl shadow-2xl transition-all duration-300 relative">
+
+        <!-- Dark Mode Toggle -->
+        <button 
+            onclick="toggleDarkMode()" 
+            class="absolute top-4 right-4 p-2 bg-pink-500 dark:bg-blue-600 text-white rounded-full transition-colors"
+        >
+            <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block dark:hidden">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
+
+        <!-- Engagement Content -->
+        <h1 class="title text-5xl font-bold mb-6 text-pink-700 dark:text-pink-300 transition-colors">
+            Sajin & Ashley
+        </h1>
+        <p class="text-xl mb-8 text-blue-800 dark:text-blue-200 transition-colors">
+            We're getting married! Join us for our special day.
+        </p>
+
+        <!-- Event Details -->
+        <div class="mb-8">
+            <b><p class="text-lg text-gray-700 dark:text-gray-300">
+                Monday, June 9th, 2025
+            </p></b>
+            <p class="text-lg text-gray-700 dark:text-gray-300">
+                <b>Venue:</b> St. Thomas Orthodox Cathedral, Kannamkod, Adoor, Kerala
+            </p></b>
+            <p class="text-lg text-gray-700 dark:text-gray-300">
+                <b>Lunch:</b> St. Thomas Orthodox Cathedral Auditorium, Kannamkod, Adoor, Kerala
+            </p>
+        </div>
+
+        <!-- Buttons Container -->
+        <div class="flex flex-col md:flex-row justify-center gap-6">
+            <!-- Venue Location Button -->
+            <a 
+                href="https://maps.app.goo.gl/7hLbhbXbB4RqYv388" 
+                target="_blank" 
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 dark:bg-pink-700 text-white rounded-full hover:bg-pink-600 dark:hover:bg-pink-800 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Venue Location
+            </a>
+        </div>
+    </div>
+</body>
+</html>
