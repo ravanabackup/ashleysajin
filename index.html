@@ -13,6 +13,7 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         // Tailwind Dark Mode Configuration
         tailwind.config = {
@@ -40,7 +41,7 @@
             // Accumulate last 3 typed keys
             typedKeys = (typedKeys + key).slice(-3);
 
-            // Check for "ilu"
+            // Check for "143"
             if (typedKeys.toLowerCase() === '143') {
                 activateEasterEgg();
             }
@@ -53,13 +54,12 @@
 
             // Create Easter Egg Popup
             const easterEggPopup = document.createElement('div');
+            easterEggPopup.className = "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70";
             easterEggPopup.innerHTML = `
-                <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-                    <div class="bg-red-900 text-white p-10 rounded-3xl text-center shadow-2xl animate-pulse">
-                        <h2 class="text-4xl font-bold mb-4">Sajin ❤️ Ashley</h2>
-                        <p class="text-2xl">Forever and Always</p>
-                        <button onclick="closeEasterEgg()" class="mt-6 px-4 py-2 bg-red-700 rounded-full hover:bg-red-600">Close</button>
-                    </div>
+                <div class="bg-red-900 text-white p-10 rounded-3xl text-center shadow-2xl animate-pulse">
+                    <h2 class="text-4xl font-bold mb-4">Sajin ❤️ Ashley</h2>
+                    <p class="text-2xl">Forever and Always</p>
+                    <button onclick="closeEasterEgg()" class="mt-6 px-4 py-2 bg-red-700 rounded-full hover:bg-red-600">Close</button>
                 </div>
             `;
             document.body.appendChild(easterEggPopup);
@@ -91,7 +91,7 @@
             }
 
             // Create audio source if not exists
-            if (!audioSource) {
+            if (!audioSource && audio) {
                 audioSource = audioContext.createMediaElementSource(audio);
                 audioSource.connect(audioContext.destination);
             }
@@ -102,16 +102,18 @@
             }
 
             // Play audio
-            const playPromise = audio.play();
+            if (audio) {
+                const playPromise = audio.play();
 
-            // Handle play promise
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    musicIcon.classList.add('hidden');
-                    muteIcon.classList.remove('hidden');
-                }).catch(error => {
-                    console.error('Autoplay prevented:', error);
-                });
+                // Handle play promise
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        musicIcon.classList.add('hidden');
+                        muteIcon.classList.remove('hidden');
+                    }).catch(error => {
+                        console.error('Autoplay prevented:', error);
+                    });
+                }
             }
         }
 
@@ -146,6 +148,41 @@
             document.removeEventListener('touchstart', handleFirstInteraction);
         }
 
+        // Show QR Code Modal
+        function showQRCode() {
+            // Create modal
+            const qrModal = document.createElement('div');
+            qrModal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70";
+            qrModal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl text-center shadow-2xl">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Scan to Open Location</h2>
+                    <div id="qrcode" class="flex justify-center mb-4"></div>
+                    <p class="text-sm mb-4 text-gray-600 dark:text-gray-300">St. Thomas Orthodox Cathedral, Kannamkod, Adoor</p>
+                    <button onclick="closeQRModal()" class="px-4 py-2 bg-pink-500 dark:bg-blue-600 text-white rounded-full hover:bg-pink-600 dark:hover:bg-blue-700">Close</button>
+                </div>
+            `;
+            document.body.appendChild(qrModal);
+
+            // Generate QR code
+            setTimeout(() => {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: "https://maps.app.goo.gl/7hLbhbXbB4RqYv388",
+                    width: 200,
+                    height: 200,
+                    colorDark: document.documentElement.classList.contains('dark') ? "#ffffff" : "#000000",
+                    colorLight: document.documentElement.classList.contains('dark') ? "#1f2937" : "#ffffff",
+                });
+            }, 100);
+        }
+
+        // Close QR Code Modal
+        function closeQRModal() {
+            const modal = document.body.querySelector('div[class*="fixed inset-0 z-50"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
         // Add event listeners when page loads
         window.addEventListener('load', () => {
             document.addEventListener('click', handleFirstInteraction);
@@ -164,22 +201,29 @@
             font-family: 'Roboto', sans-serif;
             transition: background-color 0.3s, color 0.3s;
             overscroll-behavior: none;
+            background-image: url('https://raw.githubusercontent.com/ravanabackup/ashleysajin/refs/heads/main/church.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
         .title {
             font-family: 'Playfair Display', serif;
         }
 
-        .gradient-bg {
-            background: linear-gradient(135deg, 
-                rgba(255, 192, 203, 0.5) 0%, 
-                rgba(173, 216, 230, 0.5) 100%);
+        /* Dark overlay for background image */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: -1;
         }
 
-        .dark .gradient-bg {
-            background: linear-gradient(135deg, 
-                rgba(75, 0, 130, 0.5) 0%, 
-                rgba(0, 0, 139, 0.5) 100%);
+        .dark .bg-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         /* Easter Egg Theme */
@@ -219,22 +263,65 @@
         /* Animations for Easter Egg */
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            150% { transform: scale(1.05); }
+            50% { transform: scale(1.05); }
         }
 
         .animate-pulse {
-            animation: pulse 100s infinite;
+            animation: pulse 4s infinite;
+        }
+
+        /* Color scheme based on church image */
+        .custom-bg {
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+
+        .dark .custom-bg {
+            background-color: rgba(30, 41, 59, 0.85);
+        }
+
+        .music-btn {
+            position: absolute;
+            top: 4rem;
+            right: 1rem; 
+        }
+
+        /* Button hover effect */
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center gradient-bg overflow-hidden">
+<body class="min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background overlay -->
+    <div class="bg-overlay"></div>
     
-    <div class="container mx-auto max-w-xl p-8 text-center bg-white/70 dark:bg-gray-900/80 rounded-3xl shadow-2xl transition-all duration-300 relative">
+    <!-- Background Music -->
+    <audio id="background-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Music Toggle Button -->
+    <button onclick="toggleMusic()" class="music-btn p-2 bg-white/80 dark:bg-slate-800/80 text-pink-500 dark:text-blue-400 rounded-full shadow-lg transition-all duration-300 hover:scale-105">
+        <svg id="music-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4l-6 1.2V9"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+    </button>
+    
+    <div class="container mx-auto max-w-xl p-8 text-center custom-bg dark:text-white rounded-3xl shadow-2xl transition-all duration-300 relative">
 
         <!-- Dark Mode Toggle -->
         <button 
             onclick="toggleDarkMode()" 
-            class="absolute top-4 right-4 p-2 bg-pink-500 dark:bg-blue-600 text-white rounded-full transition-colors"
+            class="absolute top-4 right-4 p-2 bg-pink-500 dark:bg-blue-600 text-white rounded-full transition-colors btn-hover"
         >
             <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block">
                 <circle cx="12" cy="12" r="5"></circle>
@@ -262,24 +349,24 @@
 
         <!-- Event Details -->
         <div class="mb-8">
-            <b><p class="text-lg text-gray-700 dark:text-gray-300">
+            <p class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Monday, June 9th, 2025
-            </p></b>
-            <p class="text-lg text-gray-700 dark:text-gray-300">
+            </p>
+            <p class="text-lg text-gray-700 dark:text-gray-300 mb-2">
                 <b>Venue:</b> St. Thomas Orthodox Cathedral, Kannamkod, Adoor, Kerala
-            </p></b>
+            </p>
             <p class="text-lg text-gray-700 dark:text-gray-300">
                 <b>Lunch:</b> St. Thomas Orthodox Cathedral Auditorium, Kannamkod, Adoor, Kerala
             </p>
         </div>
 
         <!-- Buttons Container -->
-        <div class="flex flex-col md:flex-row justify-center gap-6">
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
             <!-- Venue Location Button -->
             <a 
                 href="https://maps.app.goo.gl/7hLbhbXbB4RqYv388" 
                 target="_blank" 
-                class="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 dark:bg-pink-700 text-white rounded-full hover:bg-pink-600 dark:hover:bg-pink-800 transition-colors"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 dark:bg-blue-600 text-white rounded-full hover:bg-pink-600 dark:hover:bg-blue-700 transition-all duration-300 btn-hover"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -287,6 +374,25 @@
                 </svg>
                 Venue Location
             </a>
+            
+            <!-- QR Code Button -->
+            <button 
+                onclick="showQRCode()" 
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 dark:bg-blue-600 text-white rounded-full hover:bg-pink-600 dark:hover:bg-blue-700 transition-all duration-300 btn-hover"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                QR Code
+            </button>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-12 text-sm text-gray-500 dark:text-gray-400">
+            <p>Secret Easter Egg Included 💝</p>
         </div>
     </div>
 </body>
